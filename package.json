@@ -1,0 +1,42 @@
+{
+  "name": "kms-crypto",
+  "version": "1.0.0",
+  "description": "Crytography operations that use Amazon Key Management Service, with reasonable development time proxies",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "tap tests/*.js",
+    "cover": "nyc --reporter=lcov npm test",
+    "lint": "eslint .",
+    "build": "babel index.js --out-dir build",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "gasbuddy",
+    "amazon",
+    "aws",
+    "kms",
+    "cryptography"
+  ],
+  "author": "GasBuddy",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.6.6",
+    "superagent": "^2.1.0",
+    "winston": "^2.2.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.16.0",
+    "babel-eslint": "^7.0.0",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-preset-node6": "^11.0.0",
+    "babel-register": "^6.16.3",
+    "eslint": "^3.7.0",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^2.0.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-react": "^6.3.0",
+    "nyc": "^8.3.0",
+    "tap": "^7.1.2"
+  }
+}
