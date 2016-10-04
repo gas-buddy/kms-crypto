@@ -1,54 +1,57 @@
-import AWS from 'aws-sdk';
 import winston from 'winston';
-import region from './region';
+import * as aws from './aws';
+import * as nulls from './null';
 
-/**
- * AWS configures itself mostly, but for KMS
- * you need a region. You can pass it as a
- * property on manualConfig, or we will look
- * for process.env.AWS_REGION.
- */
 export function configure(manualConfig) {
-  if (manualConfig) {
-    AWS.config.update(manualConfig);
-    return;
+  const promises = [];
+  if (manualConfig && {}.hasOwnProperty.call(manualConfig, 'aws')) {
+    winston.info('Configuring AWS Key Management Service');
+    const maybePromise = aws.configure(manualConfig.aws);
+    if (maybePromise) {
+      promises.push(maybePromise);
+    }
   }
+  if (manualConfig && {}.hasOwnProperty.call(manualConfig, 'local')) {
+    //
+  }
+  return promises ? Promise.all(promises) : undefined;
 }
 
 /**
  * Takes a callback or will return a promise if a
  * callback is not passed.
  */
-export async function decrypt(contextPlusCipherText, callback) {
-  if (!AWS.config.region) {
-    await region();
+export async function decrypt(contextOrService, cipherText, callback) {
+  const [, kms, ciphered] =
+    cipherText.match(/^([a-z]{3}):([A-Za-z0-9+/=]+)$/);
+
+  let context = contextOrService;
+  if (typeof contextOrService === 'string') {
+    context = { service: contextOrService };
   }
 
-  const [, contextKey, cipheredKey] = contextPlusCipherText.match(/^(.*):([A-Za-z0-9+/=]+)$/);
-
-  if (!contextKey || !cipheredKey) {
-    winston.error('Improperly formatted AWS cipher text (should be context:ciphertext)', {
-      text: contextPlusCipherText,
+  if (!kms || !ciphered) {
+    winston.error('Improperly formatted AWS cipher text (should be kms:ciphertext)', {
+      text: cipherText,
     });
-    throw new Error(`Improperly formatted AWS cipher text: ${contextPlusCipherText}`);
+    throw new Error(`Improperly formatted AWS cipher text: ${cipherText}`);
   }
 
-  let encContext = { service: contextKey };
-  if (contextKey.startsWith('{')) {
-    encContext = JSON.parse(encContext);
-  }
+  let decPromise;
   try {
-    const kms = new AWS.KMS();
-    const decPromise = kms.decrypt({
-      CiphertextBlob: new Buffer(cipheredKey, 'base64'),
-      EncryptionContext: encContext,
-    }).promise();
-
-    if (callback) {
-      decPromise.then(({ Plaintext }) => callback(null, Plaintext), callback);
-      return undefined;
+    if (kms === 'aws') {
+      decPromise = aws.decrypt(context, ciphered);
+    } else if (kms === 'nil') {
+      decPromise = nulls.decrypt(context, ciphered);
     }
-    return (await decPromise).Plaintext;
+
+    if (decPromise) {
+      if (callback) {
+        decPromise.then(Plaintext => callback(null, Plaintext), callback);
+        return undefined;
+      }
+      return (await decPromise);
+    }
   } catch (error) {
     if (callback) {
       callback(error);
@@ -56,6 +59,12 @@ export async function decrypt(contextPlusCipherText, callback) {
     }
     throw error;
   }
+
+  const error = new Error(`Unknown key management service: ${kms}`);
+  if (callback) {
+    return callback(error);
+  }
+  throw error;
 }
 
 export async function decryptText(blob, callback) {
@@ -70,38 +79,36 @@ export async function decryptText(blob, callback) {
   return raw.toString('utf8');
 }
 
-function format(contextOrService, blob) {
-  if (typeof contextOrService === 'string') {
-    return `${contextOrService}:${blob.toString('base64')}`;
-  }
-  const json = JSON.stringify(contextOrService);
-  return `${json.replace('"', '\\"')}:${blob.toString('base64')}`;
-}
-
 export async function encrypt(keyArn, contextOrService, plaintext, callback) {
+  let encPromise;
+  let kmsName;
+
+  let context = contextOrService;
+  if (typeof contextOrService === 'string') {
+    context = { service: contextOrService };
+  }
+
   try {
-    if (!AWS.config.region) {
-      await region();
+    if (keyArn.startsWith('arn:')) {
+      kmsName = 'aws';
+      encPromise = aws.encrypt(keyArn, context, plaintext);
+    } else if (keyArn.startsWith('null:')) {
+      kmsName = 'nil';
+      encPromise = nulls.encrypt(keyArn, context, plaintext);
     }
 
-    let context = contextOrService;
-    if (typeof contextOrService === 'string') {
-      context = { service: contextOrService };
+    if (encPromise) {
+      if (callback) {
+        encPromise
+          // eslint-disable-next-line max-len
+          .then(blob =>
+            callback(null, `${kmsName}:${blob.toString('base64')}`),
+            callback);
+        return undefined;
+      }
+      const blob = await encPromise;
+      return `${kmsName}:${blob.toString('base64')}`;
     }
-    const kms = new AWS.KMS();
-    const encPromise = kms.encrypt({
-      KeyId: keyArn,
-      Plaintext: plaintext,
-      EncryptionContext: context,
-    }).promise();
-
-    if (callback) {
-      encPromise
-        // eslint-disable-next-line max-len
-        .then(({ CiphertextBlob }) => callback(null, format(contextOrService, CiphertextBlob)), callback);
-      return undefined;
-    }
-    return format(contextOrService, (await encPromise).CiphertextBlob);
   } catch (error) {
     if (callback) {
       callback(error);
@@ -109,4 +116,10 @@ export async function encrypt(keyArn, contextOrService, plaintext, callback) {
     }
     throw error;
   }
+
+  const error = new Error(`Could not find KMS for ${keyArn}`);
+  if (callback) {
+    return callback(error);
+  }
+  throw error;
 }

@@ -4,7 +4,7 @@
   "description": "Crytography operations that use Amazon Key Management Service, with reasonable development time proxies",
   "main": "build/index.js",
   "scripts": {
-    "test": "tap tests/*.js",
+    "test": "tap --node-arg=-r --node-arg=babel-register test/*.js",
     "cover": "nyc --reporter=lcov npm test",
     "lint": "eslint .",
     "build": "babel index.js --out-dir build",
@@ -36,6 +36,7 @@
     "eslint-plugin-import": "^2.0.0",
     "eslint-plugin-jsx-a11y": "^2.2.2",
     "eslint-plugin-react": "^6.3.0",
+    "nock": "^8.0.0",
     "nyc": "^8.3.0",
     "tap": "^7.1.2"
   }
