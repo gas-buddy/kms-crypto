@@ -5,9 +5,10 @@
   "main": "build/index.js",
   "scripts": {
     "test": "tap --node-arg=-r --node-arg=babel-register test/*.js",
+    "test-some": "tap --node-arg=-r --node-arg=babel-register",
     "cover": "nyc --reporter=lcov npm test",
     "lint": "eslint .",
-    "build": "babel index.js --out-dir build",
+    "build": "babel src --out-dir build",
     "prepublish": "npm run build"
   },
   "keywords": [
@@ -21,13 +22,15 @@
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.6.6",
+    "babel-plugin-transform-object-entries": "^1.0.0",
+    "object-hash": "1.1.4",
     "superagent": "^2.1.0",
     "winston": "^2.2.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.16.0",
     "babel-core": "^6.16.0",
     "babel-eslint": "^7.0.0",
-    "babel-plugin-syntax-async-functions": "^6.13.0",
     "babel-plugin-transform-async-to-generator": "^6.16.0",
     "babel-preset-node6": "^11.0.0",
     "babel-register": "^6.16.3",

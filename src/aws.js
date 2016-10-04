@@ -1,5 +1,34 @@
 import AWS from 'aws-sdk';
-import region from './region';
+import request from 'superagent';
+
+const identityUrl = 'http://169.254.169.254/latest/dynamic/instance-identity/document';
+
+let regionPromise = null;
+
+async function reallyGetRegion() {
+  const response = await request
+    .get(identityUrl)
+    .set('Accept', 'application/json');
+  regionPromise = null;
+  AWS.config.update({
+    region: response.body.region,
+  });
+}
+
+function getRegion() {
+  // KMS shortstop handler needs a region. See if the env has it
+  if (process.env.AWS_REGION) {
+    AWS.config.update({
+      region: process.env.AWS_REGION,
+    });
+    return null;
+  }
+  if (regionPromise) {
+    return regionPromise;
+  }
+  regionPromise = reallyGetRegion();
+  return regionPromise;
+}
 
 /**
  * AWS configures itself mostly, but for KMS
@@ -13,7 +42,7 @@ export function configure(manualConfig) {
     return undefined;
   }
   // No args passed, do auto configuration.
-  return region();
+  return getRegion();
 }
 
 export async function decrypt(context, cipheredKey) {
@@ -23,7 +52,7 @@ export async function decrypt(context, cipheredKey) {
 
   const kms = new AWS.KMS();
   const { Plaintext } = await kms.decrypt({
-    CiphertextBlob: new Buffer(cipheredKey, 'base64'),
+    CiphertextBlob: cipheredKey,
     EncryptionContext: context,
   }).promise();
 
@@ -43,4 +72,18 @@ export async function encrypt(keyArn, context, plaintext) {
   }).promise();
 
   return CiphertextBlob;
+}
+
+export async function generateDataKey(keyArn, context) {
+  if (!AWS.config.region) {
+    await configure();
+  }
+
+  const kms = new AWS.KMS();
+  const { CiphertextBlob, Plaintext } = await kms.generateDataKey({
+    KeyId: keyArn,
+    KeySpec: 'AES_256',
+    EncryptionContext: context,
+  }).promise();
+  return [Plaintext, CiphertextBlob];
 }

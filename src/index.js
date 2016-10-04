@@ -1,6 +1,7 @@
 import winston from 'winston';
 import * as aws from './aws';
 import * as nulls from './null';
+import * as local from './local';
 
 export function configure(manualConfig) {
   const promises = [];
@@ -12,7 +13,11 @@ export function configure(manualConfig) {
     }
   }
   if (manualConfig && {}.hasOwnProperty.call(manualConfig, 'local')) {
-    //
+    winston.info('Configuring Local Key Management Service');
+    const maybePromise = local.configure(manualConfig.local);
+    if (maybePromise) {
+      promises.push(maybePromise);
+    }
   }
   return promises ? Promise.all(promises) : undefined;
 }
@@ -37,12 +42,16 @@ export async function decrypt(contextOrService, cipherText, callback) {
     throw new Error(`Improperly formatted AWS cipher text: ${cipherText}`);
   }
 
+  const cipherBuffer = Buffer.from(ciphered, 'base64');
+
   let decPromise;
   try {
     if (kms === 'aws') {
-      decPromise = aws.decrypt(context, ciphered);
+      decPromise = aws.decrypt(context, cipherBuffer);
     } else if (kms === 'nil') {
-      decPromise = nulls.decrypt(context, ciphered);
+      decPromise = nulls.decrypt(context, cipherBuffer);
+    } else if (kms === 'loc') {
+      decPromise = local.decrypt(context, cipherBuffer);
     }
 
     if (decPromise) {
@@ -95,6 +104,9 @@ export async function encrypt(keyArn, contextOrService, plaintext, callback) {
     } else if (keyArn.startsWith('null:')) {
       kmsName = 'nil';
       encPromise = nulls.encrypt(keyArn, context, plaintext);
+    } else if (keyArn.startsWith('local:')) {
+      kmsName = 'loc';
+      encPromise = local.encrypt(keyArn, context, plaintext);
     }
 
     if (encPromise) {
@@ -103,7 +115,7 @@ export async function encrypt(keyArn, contextOrService, plaintext, callback) {
           // eslint-disable-next-line max-len
           .then(blob =>
             callback(null, `${kmsName}:${blob.toString('base64')}`),
-            callback);
+          callback);
         return undefined;
       }
       const blob = await encPromise;
@@ -122,4 +134,62 @@ export async function encrypt(keyArn, contextOrService, plaintext, callback) {
     return callback(error);
   }
   throw error;
+}
+
+export async function generateDataKey(keyArn, contextOrService, callback) {
+  let kmsName;
+  let keyPromise;
+
+  let context = contextOrService;
+  if (typeof contextOrService === 'string') {
+    context = { service: contextOrService };
+  }
+
+  if (keyArn.startsWith('arn:')) {
+    kmsName = 'aws';
+    keyPromise = aws.generateDataKey(keyArn, context);
+  } else if (keyArn.startsWith('null:')) {
+    kmsName = 'nil';
+    keyPromise = nulls.generateDataKey(keyArn, context);
+  } else if (keyArn.startsWith('local:')) {
+    kmsName = 'loc';
+    keyPromise = local.generateDataKey(keyArn, context);
+  }
+
+  if (keyPromise) {
+    if (callback) {
+      keyPromise
+        // eslint-disable-next-line max-len
+        .then(parts =>
+          callback(null, {
+            Plain: parts[0],
+            Ciphered: `${kmsName}:${parts[1].toString('base64')}`,
+          }),
+        callback);
+      return undefined;
+    }
+    const parts = await keyPromise;
+    return {
+      Plain: parts[0],
+      Ciphered: `${kmsName}:${parts[1].toString('base64')}`,
+    };
+  }
+
+  const error = new Error(`Could not find KMS for ${keyArn}`);
+  if (callback) {
+    return callback(error);
+  }
+  throw error;
+}
+
+export function decryptorInContext(contextOrService) {
+  return (cipher, callback) => {
+    decrypt(contextOrService, cipher, callback);
+  };
+}
+
+export function textDecryptorInContext(contextOrService) {
+  return (cipher, callback) => {
+    decryptText(contextOrService, cipher, callback);
+  };
 }
