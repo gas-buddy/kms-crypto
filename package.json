@@ -1,6 +1,6 @@
 {
   "name": "@gasbuddy/kms-crypto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Crytography operations that use Amazon Key Management Service, with reasonable development time proxies",
   "main": "build/index.js",
   "scripts": {
@@ -10,6 +10,10 @@
     "lint": "eslint .",
     "build": "babel src --out-dir build",
     "prepublish": "npm run build"
+  },
+  "bin": {
+    "kms-encrypt": "build/kms-encrypt.js",
+    "kms-gen-key": "build/kms-gen-key.js"
   },
   "keywords": [
     "gasbuddy",
@@ -23,6 +27,7 @@
   "dependencies": {
     "aws-sdk": "^2.6.6",
     "babel-plugin-transform-object-entries": "^1.0.0",
+    "minimist": "^1.2.0",
     "object-hash": "1.1.4",
     "superagent": "^2.1.0",
     "winston": "^2.2.0"
