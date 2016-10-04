@@ -1,5 +1,8 @@
 kms-crypto
 ==========
+
+[![wercker status](https://app.wercker.com/status/eae07123030a63629d8e637448964ec4/m/master "wercker status")](https://app.wercker.com/project/byKey/eae07123030a63629d8e637448964ec4)
+
 The kms-crypto module creates a generic interface for Key Management Services which allows reasonably flexible usage
 between true cloud providers (currently only AWS) and local encryption (mostly for development).
 
