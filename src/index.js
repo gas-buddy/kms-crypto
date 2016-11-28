@@ -28,7 +28,7 @@ export function configure(manualConfig) {
  */
 export async function decrypt(contextOrService, cipherText, callback) {
   const [, kms, ciphered] =
-    cipherText.match(/^([a-z]{3}):([A-Za-z0-9+/=]+)$/);
+    cipherText.match(/^([a-z]{3}):([A-Za-z0-9+/=]+)$/) || [];
 
   let context = contextOrService;
   if (typeof contextOrService === 'string') {
