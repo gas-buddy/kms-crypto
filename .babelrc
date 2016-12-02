@@ -1,5 +1,4 @@
 {
-  "presets": ["node6"],
-  "sourceMaps": true,
-  "plugins": ["transform-async-to-generator", "transform-object-entries"]
+  "presets": ["gasbuddy"],
+  "sourceMaps": true
 }
