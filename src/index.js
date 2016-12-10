@@ -76,15 +76,15 @@ export async function decrypt(contextOrService, cipherText, callback) {
   throw error;
 }
 
-export async function decryptText(blob, callback) {
+export async function decryptText(contextOrService, blob, callback) {
   if (callback) {
-    decrypt(blob, (error, buffer) => {
+    decrypt(contextOrService, blob, (error, buffer) => {
       const str = buffer ? buffer.toString('utf8') : buffer;
       callback(error, str);
     });
     return undefined;
   }
-  const raw = await decrypt(blob);
+  const raw = await decrypt(contextOrService, blob);
   return raw.toString('utf8');
 }
 
@@ -183,13 +183,9 @@ export async function generateDataKey(keyArn, contextOrService, callback) {
 }
 
 export function decryptorInContext(contextOrService) {
-  return (cipher, callback) => {
-    decrypt(contextOrService, cipher, callback);
-  };
+  return ((cipher, callback) => decrypt(contextOrService, cipher, callback));
 }
 
 export function textDecryptorInContext(contextOrService) {
-  return (cipher, callback) => {
-    decryptText(contextOrService, cipher, callback);
-  };
+  return ((cipher, callback) => decryptText(contextOrService, cipher, callback));
 }
