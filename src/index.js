@@ -189,3 +189,14 @@ export function decryptorInContext(contextOrService) {
 export function textDecryptorInContext(contextOrService) {
   return ((cipher, callback) => decryptText(contextOrService, cipher, callback));
 }
+
+export class ConfiguredKms {
+  constructor(context, config) {
+    this.config = config;
+  }
+
+  async start() {
+    await configure(this.config);
+    return module.exports;
+  }
+}
