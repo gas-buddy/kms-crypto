@@ -11,9 +11,7 @@ tap.test('Should call the AWS metadata service without a region', async (t) => {
   delete process.env.AWS_REGION;
   const expectation = nock('http://169.254.169.254')
     .get('/latest/dynamic/instance-identity/document')
-    .reply(200, {
-      region: 'foobar',
-    });
+    .reply(200, '{"region":"foobar"}');
   await kms.configure({ aws: null });
   t.ok(expectation.isDone(), 'Expect to call API');
   t.strictEquals(AWS.config.region, 'foobar', 'Expect region to be foobar');

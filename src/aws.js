@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk';
+import winston from 'winston';
 import request from 'superagent';
 
 const identityUrl = 'http://169.254.169.254/latest/dynamic/instance-identity/document';
@@ -6,13 +7,23 @@ const identityUrl = 'http://169.254.169.254/latest/dynamic/instance-identity/doc
 let regionPromise = null;
 
 async function reallyGetRegion() {
-  const response = await request
-    .get(identityUrl)
-    .set('Accept', 'application/json');
-  regionPromise = null;
-  AWS.config.update({
-    region: response.body.region,
-  });
+  try {
+    const response = await request
+      .get(identityUrl);
+    let result = response.body;
+    if (!result || !result.region) {
+      result = JSON.parse(response.text);
+    }
+    regionPromise = null;
+    AWS.config.update({
+      region: result.region,
+    });
+  } catch (error) {
+    winston.error('Unable to fetch AWS region from identity document', {
+      message: error.message,
+      stack: error.stack,
+    });
+  }
 }
 
 function getRegion() {
