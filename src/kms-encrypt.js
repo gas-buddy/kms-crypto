@@ -24,7 +24,7 @@ async function run(argv) {
   console.log('Base64:', Buffer.from(blob, 'ascii').toString('base64'));
 }
 
-const argv = minimist(process.argv.slice(2), { boolean: ['base64']});
+const argv = minimist(process.argv.slice(2), { boolean: ['base64'] });
 
 if (argv._.length < 2 || (!argv.service && !argv.context)) {
   usage(argv);
