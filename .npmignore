@@ -15,7 +15,7 @@
 
 # Custom
 .transpiled
-gbdb.json
+.nyc_output
 
 # Stock
 *.seed
