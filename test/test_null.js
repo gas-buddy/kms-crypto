@@ -53,3 +53,15 @@ tap.test('Context functions should return original when requested', async (t) =>
   t.strictEquals((await dec('FAKE TEXT')), 'FAKE TEXT', 'failure should return original');
   t.strictEquals((await dec2('FAKE TEXT')), 'FAKE TEXT', 'failure should return original');
 });
+
+tap.test('Context functions should return original when requested with callback', (t) => {
+  const dec = kms.decryptorInContext('foobar', true);
+  const dec2 = kms.textDecryptorInContext('foobar', true);
+  dec('FAKE TEXT', (err, result) => {
+    t.strictEquals(result, 'FAKE TEXT', 'failure should return original');
+    dec2('FAKE TEXT', (err2, result2) => {
+      t.strictEquals(result2, 'FAKE TEXT', 'failure should return original');
+      t.end();
+    });
+  });
+});

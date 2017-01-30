@@ -39,7 +39,12 @@ export async function decrypt(contextOrService, cipherText, callback) {
     winston.error('Improperly formatted AWS cipher text (should be kms:ciphertext)', {
       text: cipherText,
     });
-    throw new Error(`Improperly formatted AWS cipher text: ${cipherText}`);
+    const error = new Error('Improperly formatted AWS cipher text');
+    if (callback) {
+      callback(error);
+      return undefined;
+    }
+    throw error;
   }
 
   const cipherBuffer = Buffer.from(ciphered, 'base64');
