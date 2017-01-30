@@ -36,5 +36,20 @@ tap.test('Context functions should work', async (t) => {
   const encBlob = await kms.encrypt('null:nothing', 'foobar', 'testing123');
   t.strictEquals((await dec(encBlob)).toString(), 'testing123', 'should get original');
   t.strictEquals((await dec2(encBlob)), 'testing123', 'should get original');
+  try {
+    await dec('FAKE TEXT');
+    t.fail('should throw');
+  } catch (error) {
+    t.pass('Bad cipher text should throw');
+  }
 });
 
+tap.test('Context functions should return original when requested', async (t) => {
+  const dec = kms.decryptorInContext('foobar', true);
+  const dec2 = kms.textDecryptorInContext('foobar', true);
+  const encBlob = await kms.encrypt('null:nothing', 'foobar', 'testing123');
+  t.strictEquals((await dec(encBlob)).toString(), 'testing123', 'should get original');
+  t.strictEquals((await dec2(encBlob)), 'testing123', 'should get original');
+  t.strictEquals((await dec('FAKE TEXT')), 'FAKE TEXT', 'failure should return original');
+  t.strictEquals((await dec2('FAKE TEXT')), 'FAKE TEXT', 'failure should return original');
+});

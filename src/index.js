@@ -182,12 +182,30 @@ export async function generateDataKey(keyArn, contextOrService, callback) {
   throw error;
 }
 
-export function decryptorInContext(contextOrService) {
-  return ((cipher, callback) => decrypt(contextOrService, cipher, callback));
+export function decryptorInContext(contextOrService, returnOriginalOnFailure) {
+  return (async (cipher, callback) => {
+    try {
+      return await decrypt(contextOrService, cipher, callback);
+    } catch (error) {
+      if (returnOriginalOnFailure) {
+        return cipher;
+      }
+      throw error;
+    }
+  });
 }
 
-export function textDecryptorInContext(contextOrService) {
-  return ((cipher, callback) => decryptText(contextOrService, cipher, callback));
+export function textDecryptorInContext(contextOrService, returnOriginalOnFailure) {
+  return (async (cipher, callback) => {
+    try {
+      return await decryptText(contextOrService, cipher, callback);
+    } catch (error) {
+      if (returnOriginalOnFailure) {
+        return cipher;
+      }
+      throw error;
+    }
+  });
 }
 
 export class ConfiguredKms {
