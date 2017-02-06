@@ -189,8 +189,15 @@ export async function generateDataKey(keyArn, contextOrService, callback) {
 
 export function decryptorInContext(contextOrService, returnOriginalOnFailure) {
   return (async (cipher, callback) => {
-    const cbIntercept = (callback && returnOriginalOnFailure) ?
-      ((error, result) => (error ? callback(null, cipher) : callback(null, result))) : null;
+    const cbIntercept = callback ? ((error, result) => {
+      if (returnOriginalOnFailure && error) {
+        callback(null, cipher);
+      } else if (error) {
+        callback(error, result);
+      } else {
+        callback(null, result);
+      }
+    }) : null;
     try {
       return await decrypt(contextOrService, cipher, cbIntercept);
     } catch (error) {
@@ -204,8 +211,15 @@ export function decryptorInContext(contextOrService, returnOriginalOnFailure) {
 
 export function textDecryptorInContext(contextOrService, returnOriginalOnFailure) {
   return (async (cipher, callback) => {
-    const cbIntercept = (callback && returnOriginalOnFailure) ?
-      ((error, result) => (error ? callback(null, cipher) : callback(null, result))) : null;
+    const cbIntercept = callback ? ((error, result) => {
+      if (returnOriginalOnFailure && error) {
+        callback(null, cipher);
+      } else if (error) {
+        callback(error, result);
+      } else {
+        callback(null, result);
+      }
+    }) : null;
 
     try {
       return await decryptText(contextOrService, cipher, cbIntercept);
