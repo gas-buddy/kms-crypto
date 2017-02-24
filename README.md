@@ -1,6 +1,8 @@
 kms-crypto
 ==========
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/gas-buddy/kms-crypto.svg)](https://greenkeeper.io/)
+
 [![wercker status](https://app.wercker.com/status/eae07123030a63629d8e637448964ec4/m/master "wercker status")](https://app.wercker.com/project/byKey/eae07123030a63629d8e637448964ec4)
 
 The kms-crypto module creates a generic interface for Key Management Services which allows reasonably flexible usage
