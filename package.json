@@ -1,6 +1,6 @@
 {
   "name": "@gasbuddy/kms-crypto",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Crytography operations that use Amazon Key Management Service, with reasonable development time proxies",
   "main": "build/index.js",
   "scripts": {
@@ -26,7 +26,7 @@
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.6.6",
-    "babel-plugin-transform-object-entries": "^1.0.0",
+    "babel-runtime": "^6.23.0",
     "minimist": "^1.2.0",
     "object-hash": "1.1.4",
     "superagent": "^3.0.0",
@@ -36,13 +36,13 @@
     "babel-cli": "^6.16.0",
     "babel-core": "^6.16.0",
     "babel-eslint": "^7.0.0",
-    "babel-preset-gasbuddy": "^1.0.1",
+    "babel-preset-gasbuddy": "^2.0.0",
     "babel-register": "^6.16.3",
     "cross-env": "^3.1.3",
     "eslint": "^3.7.0",
     "eslint-config-gasbuddy": "^1.0.0",
     "nock": "^9.0.0",
-    "tap": "^7.1.2"
+    "tap": "^10.3.0"
   },
   "nyc": {
     "lines": 75,
@@ -55,6 +55,7 @@
     "require": [
       "babel-register"
     ],
+    "instrument": false,
     "sourceMap": false
   }
 }
