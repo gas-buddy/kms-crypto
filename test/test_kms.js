@@ -44,7 +44,12 @@ tap.test('Should encrypt a token with AWS', async (t) => {
       },
     };
   };
-  AWS.KMS = () => ({ encrypt });
+  AWS.KMS = class {
+    constructor() {
+      this.encrypt = encrypt;
+    }
+  };
+
   const cipher = await kms.encrypt('arn:KEY_ARN', 'megaserv', 'plaintextValue');
   t.strictEquals(cipher, `aws:${Buffer.from('hello world').toString('base64')}`,
     'Should match mock text');
@@ -74,7 +79,11 @@ tap.test('Should decrypt a token from AWS', async (t) => {
       },
     };
   };
-  AWS.KMS = () => ({ decrypt });
+  AWS.KMS = class {
+    constructor() {
+      this.decrypt = decrypt;
+    }
+  };
   const cipherBlob = Buffer.from('hello world');
   const plain = await kms.decrypt('megaserv', `aws:${cipherBlob.toString('base64')}`);
   t.strictEquals(plain.toString(), 'hello world', 'Should match mock text');
@@ -114,7 +123,12 @@ tap.test('Should generate a key', async (t) => {
       },
     };
   };
-  AWS.KMS = () => ({ decrypt, generateDataKey });
+  AWS.KMS = class {
+    constructor() {
+      this.decrypt = decrypt;
+      this.generateDataKey = generateDataKey;
+    }
+  };
 
   const { Plain, Ciphered } = await kms.generateDataKey('arn:aws:kms:us-east-1:896521799855:key/df5d2613-33c4-4cdc-b0ed-d41f69d78779', 'foobar');
   const decBlob = await kms.decrypt('foobar', Ciphered);
