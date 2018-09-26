@@ -4,6 +4,7 @@ import tap from 'tap';
 import * as kms from '../src/index';
 
 tap.test('Should work with local encryption', async (t) => {
+  kms.setLogger(console); // no change, but test the function
   const key = fs.readFileSync(path.join(__dirname, 'dev_app_key.pem'), 'utf8');
   await kms.configure({
     local: {
