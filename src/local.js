@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import ohash from 'object-hash';
-import winston from 'winston';
+import { getLogger } from './logger';
 
 const asymmetricVersion = Buffer.from([1]);
 const ciphers = {};
@@ -43,7 +43,7 @@ function Cipher(key) {
         }
         return plainText;
       } catch (err) {
-        winston.error('Decryption failed', err);
+        getLogger().error('Decryption failed', err);
         return null;
       }
     },

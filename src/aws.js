@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
-import winston from 'winston';
 import request from 'superagent';
+import { getLogger } from './logger';
 
 const identityUrl = 'http://169.254.169.254/latest/dynamic/instance-identity/document';
 
@@ -19,7 +19,7 @@ async function reallyGetRegion() {
       region: result.region,
     });
   } catch (error) {
-    winston.error('Unable to fetch AWS region from identity document', {
+    getLogger().error('Unable to fetch AWS region from identity document', {
       message: error.message,
       stack: error.stack,
     });

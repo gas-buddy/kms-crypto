@@ -1,19 +1,21 @@
-import winston from 'winston';
 import * as aws from './aws';
 import * as nulls from './null';
 import * as local from './local';
+import { getLogger } from './logger';
+
+export { setLogger } from './logger';
 
 export function configure(manualConfig) {
   const promises = [];
   if (manualConfig && {}.hasOwnProperty.call(manualConfig, 'aws')) {
-    winston.info('Configuring AWS Key Management Service');
+    getLogger().info('Configuring AWS Key Management Service');
     const maybePromise = aws.configure(manualConfig.aws);
     if (maybePromise) {
       promises.push(maybePromise);
     }
   }
   if (manualConfig && {}.hasOwnProperty.call(manualConfig, 'local')) {
-    winston.info('Configuring Local Key Management Service');
+    getLogger().info('Configuring Local Key Management Service');
     const maybePromise = local.configure(manualConfig.local);
     if (maybePromise) {
       promises.push(maybePromise);
@@ -36,7 +38,7 @@ export async function decrypt(contextOrService, cipherText, callback) {
   }
 
   if (!kms || !ciphered) {
-    winston.error('Improperly formatted AWS cipher text (should be kms:ciphertext)', {
+    getLogger().error('Improperly formatted AWS cipher text (should be kms:ciphertext)', {
       text: cipherText,
     });
     const error = new Error('Improperly formatted AWS cipher text');
@@ -235,10 +237,11 @@ export function textDecryptorInContext(contextOrService, returnOriginalOnFailure
 export class ConfiguredKms {
   constructor(context, config) {
     this.config = config;
+    this.logger = context.logger;
   }
 
   async start() {
-    await configure(this.config);
+    await configure(this.config, this.logger);
     return module.exports;
   }
 }

@@ -1,12 +1,12 @@
 import ohash from 'object-hash';
-import winston from 'winston';
 import crypto from 'crypto';
+import { getLogger } from './logger';
 
 export async function decrypt(context, cipher) {
   const plainBuf = JSON.parse(cipher.toString());
   const hash = ohash(context);
   if (hash !== plainBuf.hash) {
-    winston.warn('Context mismatch', context);
+    getLogger().warn('Context mismatch', context);
     return null;
   }
   return Buffer.from(plainBuf.plain, 'base64');
