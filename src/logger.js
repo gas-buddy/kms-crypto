@@ -1,9 +1,12 @@
-let logger = console;
+const loggerSymbol = Symbol.for('@gasbuddy/kms-crypto::logger');
+if (!global[loggerSymbol]) {
+  global[loggerSymbol] = console;
+}
 
 export function setLogger(l) {
-  logger = l;
+  global[loggerSymbol] = l;
 }
 
 export function getLogger() {
-  return logger;
+  return global[loggerSymbol];
 }
