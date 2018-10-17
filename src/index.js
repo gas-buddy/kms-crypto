@@ -29,8 +29,7 @@ export function configure(manualConfig) {
  * callback is not passed.
  */
 export async function decrypt(contextOrService, cipherText, callback) {
-  const [, kms, ciphered] =
-    cipherText.toString().match(/^([a-z]{3}):([A-Za-z0-9+/=]+)$/) || [];
+  const [, kms, ciphered] = cipherText.toString().match(/^([a-z]{3}):([A-Za-z0-9+/=]+)$/) || [];
 
   let context = contextOrService;
   if (typeof contextOrService === 'string') {
@@ -120,9 +119,7 @@ export async function encrypt(keyArn, contextOrService, plaintext, callback) {
       if (callback) {
         encPromise
           // eslint-disable-next-line max-len
-          .then(blob =>
-            callback(null, `${kmsName}:${blob.toString('base64')}`),
-          callback);
+          .then(blob => callback(null, `${kmsName}:${blob.toString('base64')}`), callback);
         return undefined;
       }
       const blob = await encPromise;
@@ -167,12 +164,10 @@ export async function generateDataKey(keyArn, contextOrService, callback) {
     if (callback) {
       keyPromise
         // eslint-disable-next-line max-len
-        .then(parts =>
-          callback(null, {
-            Plain: parts[0],
-            Ciphered: `${kmsName}:${parts[1].toString('base64')}`,
-          }),
-        callback);
+        .then(parts => callback(null, {
+          Plain: parts[0],
+          Ciphered: `${kmsName}:${parts[1].toString('base64')}`,
+        }), callback);
       return undefined;
     }
     const parts = await keyPromise;

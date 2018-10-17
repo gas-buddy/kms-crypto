@@ -25,7 +25,7 @@ async function run(argv) {
   } else if (argv.file) {
     input = fs.readFileSync(argv._[1], 'binary');
   } else {
-    input = argv._[1];
+    [, input] = argv._;
   }
   const blob = await kms.encrypt(argv._[0], context, input);
   console.log('Raw:', blob);

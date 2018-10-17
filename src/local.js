@@ -80,4 +80,3 @@ export async function generateDataKey(keyUri, context) {
   const cipher = await encrypt(keyUri, context, random);
   return [random, cipher];
 }
-
