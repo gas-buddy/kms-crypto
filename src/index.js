@@ -1,7 +1,7 @@
 import * as aws from './aws';
 import * as nulls from './null';
 import * as local from './local';
-import { getLogger } from './logger';
+import { setLogger, getLogger } from './logger';
 
 export { setLogger } from './logger';
 
@@ -232,11 +232,11 @@ export function textDecryptorInContext(contextOrService, returnOriginalOnFailure
 export class ConfiguredKms {
   constructor(context, config) {
     this.config = config;
-    this.logger = context.logger;
+    setLogger(context.logger);
   }
 
   async start() {
-    await configure(this.config, this.logger);
+    await configure(this.config);
     return module.exports;
   }
 }
