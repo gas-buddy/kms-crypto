@@ -7,7 +7,7 @@ The kms-crypto module creates a generic interface for Key Management Services wh
 between true cloud providers (currently only AWS) and local encryption (mostly for development).
 
 The key resource name is used to differentiate between the service providers, and the service provider is embedded in
-encrypted values (e.g. ciphertext).
+encrypted values (e.g. ciphertext). PLEASE NOTE - the examples use `null:whatever` but DO NOT USE THAT IN PRODUCTION CODE. Your key should start with `kms:` and you should get that key ARN from the ops team.
 
 The module supports promises and callbacks.
 
