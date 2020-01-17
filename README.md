@@ -51,3 +51,24 @@ async function run() {
 
 run();
 ```
+
+### Encrypting secrets with the CLI
+
+When secret key is needed, the following steps can be used to encode one using the CLI tool provided by this project.  The following steps outline how to do it.
+
+Clone the repo
+run `npm install`
+run `npm run build`
+run
+```
+node build/kms-encrypt.js \
+  --service token-serv \
+  --base64 \
+  '<KMS ARN>' \
+  $(echo -n '<SOOOOOOOOOOOPER_SECRET_PLAINTEXT>' | base64)
+```
+
+KMS ARN: this is the ARN of the KMS object to use, ex. `arn:aws:kms:us-east-1:267230788984:key/f09db2c3-ab61-499e-9b28-0515ed805008`
+SOOOOOOOOOOOPER_SECRET_PLAINTEXT: a 32 char string to encrypt.  Probably randomly generated with something like 1Password.
+
+The output will include 2 stings.  The raw encrypted value, and the raw value base64 encoded.  For use with kubernetes secretes, you will want the base64 encoded one.
