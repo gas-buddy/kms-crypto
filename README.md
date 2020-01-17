@@ -65,10 +65,10 @@ node build/kms-encrypt.js \
   --service token-serv \
   --base64 \
   '<KMS ARN>' \
-  $(echo -n '<SOOPER_SECRET_PLAINTEXT>' | base64)
+  $(echo -n '<SOOOOOOOOOOOPER_SECRET_PLAINTEXT>' | base64)
 ```
 
 KMS ARN: this is the ARN of the KMS object to use, ex. `arn:aws:kms:us-east-1:267230788984:key/f09db2c3-ab61-499e-9b28-0515ed805008`
-SOOPER_SECRET_PLAINTEXT: a 32 char string to encrypt.  Probably randomly generated with something like 1Password.
+SOOOOOOOOOOOPER_SECRET_PLAINTEXT: a 32 char string to encrypt.  Probably randomly generated with something like 1Password.
 
 The output will include 2 stings.  The raw encrypted value, and the raw value base64 encoded.  For use with kubernetes secretes, you will want the base64 encoded one.
