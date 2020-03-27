@@ -8,5 +8,5 @@ export function setLogger(l) {
 }
 
 export function getLogger() {
-  return global[loggerSymbol];
+  return global[loggerSymbol] || console;
 }
