@@ -8,8 +8,5 @@ export function setLogger(l) {
 }
 
 export function getLogger() {
-  if (!global[loggerSymbol]) {
-    return console;
-  }
-  return global[loggerSymbol];
+  return global[loggerSymbol] || console;
 }
