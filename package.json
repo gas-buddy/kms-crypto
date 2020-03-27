@@ -1,6 +1,6 @@
 {
   "name": "@gasbuddy/kms-crypto",
-  "version": "4.2.1",
+  "version": "4.3.0",
   "description": "Crytography operations that use Amazon Key Management Service, with reasonable development time proxies",
   "main": "build/index.js",
   "scripts": {
