@@ -1,11 +1,47 @@
-test_output.log
-.idea
-node_modules
-build
-coverage
+# Custom
+.transpiled
 .nyc_output
+
+# TypeScript incremental compilation cache
+*.tsbuildinfo
+
+# Stock
+*.seed
 *.log
-.tap_output
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.orig
+
+work
+/build
+pids
+logs
+results
+coverage
+lib-cov
+html-report
+xunit.xml
+node_modules
+npm-debug.log
+
+.project
+.idea
+.settings
+.iml
+*.sublime-workspace
+*.sublime-project
+
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
 
 .yarn/*
 !.yarn/patches
@@ -18,4 +54,3 @@ coverage
 
 # TypeScript incremental compilation cache
 *.tsbuildinfo
-.eslintcache
