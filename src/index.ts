@@ -6,14 +6,20 @@ import {
   KmsVariant, KmsCryptoProvider, KmsOperationContext, KmsProviderConfig,
 } from './types';
 
-export async function createKmsCryptoProvider(config: KmsProviderConfig) {
-  const [aws, local] = await Promise.all([
-    config.aws ? createAwsProvider(config.aws) : undefined,
-    config.local ? createLocalProvider(config.local) : undefined,
+export async function createKmsCryptoProvider(config?: KmsProviderConfig) {
+  let [aws, local] = await Promise.all([
+    config?.aws ? createAwsProvider(config?.aws) : undefined,
+    config?.local ? createLocalProvider(config?.local) : undefined,
   ]);
   const nullP = nullProvider();
 
   const closure = {
+    async reconfigure(newConfig: KmsProviderConfig) {
+      [aws, local] = await Promise.all([
+        newConfig?.aws ? createAwsProvider(newConfig?.aws) : undefined,
+        newConfig?.local ? createLocalProvider(newConfig?.local) : undefined,
+      ]);
+    },
     async decrypt(
       context: KmsOperationContext,
       cipherText: string,
@@ -129,3 +135,5 @@ export async function createKmsCryptoProvider(config: KmsProviderConfig) {
   } as const;
   return closure;
 }
+
+export type KmsCrypto = Awaited<ReturnType<typeof createKmsCryptoProvider>>;
