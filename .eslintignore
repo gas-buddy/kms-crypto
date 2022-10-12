@@ -1,2 +1,4 @@
-build
+build/
 coverage
+jest.config.js
+.eslintrc.js

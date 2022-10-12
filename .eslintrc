@@ -1,6 +1,0 @@
-{
-  "rules": {
-   "import/no-useless-path-segments": "off"
-  },
-  "extends": "gasbuddy"
-}
