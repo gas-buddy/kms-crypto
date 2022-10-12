@@ -2,7 +2,9 @@ import assert from 'assert';
 import { createAwsProvider } from './aws';
 import { createLocalProvider } from './local';
 import { nullProvider } from './null';
-import { KmsVariant, KmsCryptoProvider, KmsOperationContext, KmsProviderConfig } from './types';
+import {
+  KmsVariant, KmsCryptoProvider, KmsOperationContext, KmsProviderConfig,
+} from './types';
 
 export async function createKmsCryptoProvider(config: KmsProviderConfig) {
   const [aws, local] = await Promise.all([
@@ -16,8 +18,7 @@ export async function createKmsCryptoProvider(config: KmsProviderConfig) {
       context: KmsOperationContext,
       cipherText: string,
     ) {
-      const [, kmsSpec, ciphered] =
-        cipherText.toString().match(/^([a-z]{3}):([A-Za-z0-9+/=]+)$/) || [];
+      const [, kmsSpec, ciphered] = cipherText.toString().match(/^([a-z]{3}):([A-Za-z0-9+/=]+)$/) || [];
       if (!kmsSpec && !ciphered) {
         throw new Error('Improperly formatted cipher text (should be kms:ciphertext)');
       }
