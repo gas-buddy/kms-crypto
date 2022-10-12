@@ -9,7 +9,7 @@ const asymmetricVersion = Buffer.from([1]);
 function getCipher(key: string) {
   return {
     encrypt(context: KmsOperationContext, plaintext: string | Buffer) {
-      const hash = ohash(
+      const hash = Buffer.from(ohash(
         {
           context,
           plain: plaintext.toString('base64'),
@@ -18,8 +18,8 @@ function getCipher(key: string) {
           algorithm: 'sha256',
           encoding: 'buffer',
         },
-      );
-      const textAndHash = Buffer.concat([Buffer.from(hash), Buffer.from(plaintext)]);
+      ));
+      const textAndHash = Buffer.concat([hash, Buffer.from(plaintext)]);
       const cipherText = crypto.publicEncrypt(key, textAndHash);
       return Buffer.concat([asymmetricVersion, cipherText]);
     },
@@ -30,7 +30,7 @@ function getCipher(key: string) {
 
       const textAndHash = crypto.privateDecrypt(key, cipherBuf.subarray(1));
       const plainText = textAndHash.subarray(32);
-      const hash = ohash(
+      const hash = Buffer.from(ohash(
         {
           context,
           plain: plainText.toString('base64'),
@@ -39,8 +39,8 @@ function getCipher(key: string) {
           algorithm: 'sha256',
           encoding: 'buffer',
         },
-      );
-      if (textAndHash.subarray(0, 32).compare(Buffer.from(hash)) !== 0) {
+      ));
+      if (textAndHash.subarray(0, 32).compare(hash) !== 0) {
         return null;
       }
       return plainText;
