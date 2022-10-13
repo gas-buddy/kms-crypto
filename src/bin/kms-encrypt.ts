@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 import fs from 'fs';
+import assert from 'assert';
 import minimist from 'minimist';
 import { createKmsCryptoProvider } from '../index';
 
@@ -39,17 +40,19 @@ async function run() {
   }
   const kms = await createKmsCryptoProvider(getProviderConfig());
 
-  let input;
+  let input: Buffer;
   if (argv.base64) {
     input = Buffer.from(argv._[1], 'base64');
   } else if (argv.file) {
-    input = fs.readFileSync(argv._[1], 'binary');
+    input = fs.readFileSync(argv._[1], 'binary') as unknown as Buffer;
   } else {
-    [, input] = argv._;
+    input = Buffer.from(argv._[1]);
   }
   const blob = await kms.encrypt(argv._[0], context, input);
-  console.log('Raw:', blob);
-  console.log('Base64:', Buffer.from(blob, 'ascii').toString('base64'));
+  console.log(`Raw:\n${blob}\n`);
+  console.log(`Base64:\n${Buffer.from(blob, 'ascii').toString('base64')}\n`);
+  const original = await kms.decrypt(context, blob);
+  assert(original?.equals(input), 'Decrypted value does not match original');
 }
 
 if (argv._.length < 1 || (!argv.service && !argv.context)) {
