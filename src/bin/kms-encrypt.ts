@@ -4,7 +4,9 @@ import fs from 'fs';
 import minimist from 'minimist';
 import { createKmsCryptoProvider } from '../index';
 
-const argv = minimist(process.argv.slice(2));
+const argv = minimist(process.argv.slice(2), {
+  string: '_',
+});
 
 function usage() {
   console.error('Usage:');
