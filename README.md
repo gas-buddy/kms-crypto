@@ -20,3 +20,8 @@ import { createKmsCryptoProvider } from '@gasbuddy/kms-crypto';
   assert.equals(decBlob.toString(), 'testing123');
 })();
 ```
+
+Example to restrict decryption to a sepcific service:
+```
+encrypt(keyArn, { service: <name of decrypting service> }, plaintext)
+```
